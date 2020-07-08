@@ -61,7 +61,7 @@ foreach u of var aqi l_aqi pm l_pm{
 *
 
 
-****** Figure 3 and Table S5 ******
+****** Figure 3 ******
 use wf.dta
 sort city_code daynum
 keep if daynum <=8461 & daynum >= 8401
@@ -243,5 +243,65 @@ graph twoway (scatter estimate dup, mcolor("255 122 158") msymbol(diamond)) ///
 			ytitle("Estimated Coefficient", xoffset(15))
 restore
 
+****** Figure 4 ******
+use wf.dta
+keep if daynum <=8461 & daynum >= 8401
+merge m:m city_code using city_yb.dta
 
+* outcomes
+foreach u of var aqi pm{
+	gen l_`u' = log(1+`u')
+}
+*
+
+* temperature squared
+gen temp2 = temp*temp
+
+* warm / cold
+rename mean_temp1 mean_temp
+gen i_mean_temp1 = mean_temp if daynum == 8401
+bys city_code2010 : egen d_mean_temp1 = mean(i_mean_temp1)
+egen mean_temp1 = mean(d_mean_temp1)
+gen cold = (d_mean_temp1<=mean_temp1)
+drop mean_temp1 d_mean_temp1 i_mean_temp1
+
+* GDP
+egen mean_gdp_city = mean(gdp_city)
+gen high_GDP = (gdp_city>mean_gdp_city)
+drop mean_gdp_city
+
+* per capita GDP
+egen mean_pgdp_city = mean(pgdp_city)
+gen high_pGDP = (pgdp_city>mean_pgdp_city)
+drop mean_pgdp_city
+
+* population
+egen mean_pop_city = mean(pop_city)
+gen high_pop = (pop_city>mean_pop_city)
+drop mean_pop_city
+
+* sec ind
+egen mean_sec_city = mean(sec_city)
+gen high_sec = (sec_city>mean_sec_city)
+drop mean_sec_city
+
+* firm number
+egen mean_firm_city = mean(firm_city)
+gen high_firm = (firm_city>mean_firm_city)
+drop mean_firm_city
+
+* Traffic
+foreach u of var gonglu-hy_minhang{
+	egen mean_`u' = mean(`u')
+	gen high_`u' = (`u'>mean_`u')
+	drop mean_`u'
+	}
+	*
+	
+foreach u of var emit_ww-emit_dust2{
+	egen mean_`u' = mean(`u')
+	gen high_`u' = (`u'>mean_`u')
+	drop mean_`u'
+	}
+	*
 
