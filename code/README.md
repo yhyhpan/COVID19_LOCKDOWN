@@ -8,11 +8,7 @@ Codes for Paper "The Short-term Impacts of COVID-19 Lockdown on Urban Air Pollut
 
 **Code List:** 
 
-(1) 
-
-(2)
-
-(3)
+(1) master.do : codes to produce the results.
 
 Link to the Paper at *Nature Sustainability*: https://www.nature.com/articles/s41893-020-0581-y
 
