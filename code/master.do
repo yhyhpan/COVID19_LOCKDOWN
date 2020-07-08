@@ -1,10 +1,10 @@
 ***************
 *	Project: Air Pollution and Lockdown <Replication Codes>
 *	Author: Guojun, Yuhang, Tanaka
-* 	Date: 2020 Jul
+* 	Date: 2020 July
 ***************
 clear
-cd /Users/smileternity/Desktop
+cd "Your File Location"
 
 
 ****** Table 1 (Column 1-4) ******
