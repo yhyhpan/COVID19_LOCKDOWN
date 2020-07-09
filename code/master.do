@@ -5,7 +5,7 @@
 * 	<Replication Codes>
 ***************
 clear
-cd /Users/smileternity/Desktop
+cd "Your Own Location"
 
 ****** Table 1 (Column 1-4) ******
 use wf.dta
@@ -247,7 +247,7 @@ restore
 use wf.dta
 keep if year == 2020
 
-merge m:m city_code using city_yb.dta
+merge m:m city_code using city_yb.dta /* City-level yearbook data */
 keep if daynum <=8461 & daynum >= 8401
 
 * outcomes
@@ -351,7 +351,7 @@ graph twoway  (rspike min95 max95 order, horizontal lwidth(medthin) lcolor(black
 
 
 
-****** SI Table 3: Summary Statistics ******
+****** SI Table 3: Summary ******
 use wf.dta
 
 sort city_code daynum
@@ -362,7 +362,6 @@ replace select = 1 if daynum <=8107 & daynum >= 8047
 keep if select == 1
 drop select 
 
-*	Summary of Statistic
 est clear
 estpost summarize aqi pm temp prec snow treat if year == 2020
 estpost summarize aqi pm temp prec snow treat if year == 2020 & t_asign !=. & treat == 0

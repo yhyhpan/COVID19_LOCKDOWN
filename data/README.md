@@ -6,13 +6,7 @@
 
 Data for Paper "The Short-term Impacts of COVID-19 Lockdown on Urban Air Pollution in China "
 
-**Data:** 
-
-(1) 
-
-(2)
-
-(3)
+**Data:** wf.dta: merged workfile data (city-level ) in this project.
 
 Link to the Paper at *Nature Sustainability*: https://www.nature.com/articles/s41893-020-0581-y
 
