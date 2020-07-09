@@ -5,7 +5,7 @@
 * 	<Replication Codes>
 ***************
 clear
-cd "Your Files' Location"
+cd /Users/smileternity/Desktop
 
 ****** Table 1 (Column 1-4) ******
 use wf.dta
@@ -144,7 +144,7 @@ foreach u of var aqi l_aqi pm l_pm{
 
 * AQI
 preserve
-use event_valueAQI.dta
+use event_aqi.dta
 drop if inlist(parm, "temp", "temp2", "prec", "snow", "_cons")
 gen dup = _n
 gen dup2 = _n
@@ -169,7 +169,7 @@ restore
 
 * AQI - log
 preserve
-use event_lvalueAQI.dta
+use event_l_aqi.dta
 drop if inlist(parm, "temp", "temp2", "prec", "snow", "_cons")
 gen dup = _n
 gen dup2 = _n
@@ -195,7 +195,7 @@ restore
 
 * PM2.5
 preserve
-use event_valuePM25.dta
+use event_pm.dta
 drop if inlist(parm, "temp", "temp2", "prec", "snow", "_cons")
 gen dup = _n
 gen dup2 = _n
@@ -220,7 +220,7 @@ restore
 
 * PM2.5 - log
 preserve
-use event_lvaluePM25.dta
+use event_l_pm.dta
 drop if inlist(parm, "temp", "temp2", "prec", "snow", "_cons")
 gen dup = _n
 gen dup2 = _n
@@ -245,8 +245,10 @@ restore
 
 ****** Figure 4 ******
 use wf.dta
-keep if daynum <=8461 & daynum >= 8401
+keep if year == 2020
+
 merge m:m city_code using city_yb.dta
+keep if daynum <=8461 & daynum >= 8401
 
 * outcomes
 foreach u of var aqi pm{
@@ -258,12 +260,13 @@ foreach u of var aqi pm{
 gen temp2 = temp*temp
 
 * warm / cold
-rename mean_temp1 mean_temp
+rename temp mean_temp
 gen i_mean_temp1 = mean_temp if daynum == 8401
-bys city_code2010 : egen d_mean_temp1 = mean(i_mean_temp1)
+bys city_code : egen d_mean_temp1 = mean(i_mean_temp1)
 egen mean_temp1 = mean(d_mean_temp1)
 gen cold = (d_mean_temp1<=mean_temp1)
 drop mean_temp1 d_mean_temp1 i_mean_temp1
+rename mean_temp temp
 
 * GDP
 egen mean_gdp_city = mean(gdp_city)
@@ -291,17 +294,105 @@ gen high_firm = (firm_city>mean_firm_city)
 drop mean_firm_city
 
 * Traffic
-foreach u of var gonglu-hy_minhang{
-	egen mean_`u' = mean(`u')
-	gen high_`u' = (`u'>mean_`u')
-	drop mean_`u'
-	}
-	*
+	egen mean_gonglu = mean(gonglu)
+	gen high_gonglu = (gonglu>mean_gonglu)
+	drop mean_gonglu
+
 	
-foreach u of var emit_ww-emit_dust2{
+foreach u of var emit_ww emit_so1 emi_dust1{
 	egen mean_`u' = mean(`u')
 	gen high_`u' = (`u'>mean_`u')
 	drop mean_`u'
 	}
 	*
+
+	
+
+* regression
+foreach p of var cold north high_GDP-high_emi_dust1{
+	foreach u of var aqi l_aqi pm l_pm{		
+		reghdfe `u' treat prec snow temp temp2 if `p' == 1, absorb(city_code daynum) vce(cl city_code)	
+		reghdfe `u' treat prec snow temp temp2 if `p' == 0, absorb(city_code daynum) vce(cl city_code)
+		}
+}
+*
+
+* An example of plotting: same for all other graphs on Heterogeneous analysis
+* For AQI graph
+* min95 max95 estimate are the two 95% bounds and the point estimates, respectively.
+graph twoway  (rspike min95 max95 order, horizontal lwidth(medthin) lcolor(black%50) lpattern(dash) lcolor(black%40)) ///
+				(scatter order estimate, msize(medsmall) mcolor("0 183 255") msymbol(diamond)) ///
+				,scheme(lean1) ///
+				xsize(5) ysize(6) ///
+				ylabel(1 "Dust Emission (L)" 1.5 "Dust Emission (H)" ///
+				2 "SO{sub:2} Emission (L)" 2.5 "SO{sub:2} Emission (H)" ///
+				3 "Wastewater Emission (L)" 3.5 "Wastewater Emission (H)" ///
+				5 "Amount of Traffic (L)" 5.5 "Amount of Traffic (H)" ///
+				6 "# of Firms (L)" 6.5 "# of Firms (H)" ///
+				7 "Secondary Industry Output (L)" 7.5 "Secondary Industry Output (H)" /// 
+				5 "Amount of Traffic (L)" 5.5 "Amount of Traffic (H)" ///
+				9 "Population (L)" 9.5 "Population (H)" ///
+				10 "per capita GDP (L)" 10.5 "per capita GDP (H)" ///
+				11 "GDP (L)" 11.5 "GDP (H)" ///
+				13 "Southern China" 13.5 "Northern China" ///
+				14 "Warm Region" 14.5 "Cold Region" ///
+				16 "Baseline" ///
+				, labsize(small)) ///
+				ytitle("") ///
+				xtitle("Estimated Coefficient", size(small)) ///
+				xlabel(, labsize(small)) ///
+				xline(0, lpattern(dot)) ///
+				yline(4.25 8.25 12.25 15.25, lpattern(dash) lcolor(orange%15) lwidth(thick)) ///
+				legend(off) ///
+				text(14.9 -0.4 "{it:Panel A}", place(e) size(2.5)) ///
+				text(11.9 -0.4 "{it:Panel B}", place(e) size(2.5)) ///
+				text(7.9 -0.4 "{it:Panel C}", place(e) size(2.5)) ///
+				text(3.9 -0.4 "{it:Panel D}", place(e) size(2.5)) 
+
+
+
+****** SI Table 3: Summary Statistics ******
+use wf.dta
+
+sort city_code daynum
+xtset city_code daynum
+
+gen select = 1 if daynum <=8461 & daynum >= 8401 
+replace select = 1 if daynum <=8107 & daynum >= 8047 
+keep if select == 1
+drop select 
+
+*	Summary of Statistic
+est clear
+estpost summarize aqi pm temp prec snow treat if year == 2020
+estpost summarize aqi pm temp prec snow treat if year == 2020 & t_asign !=. & treat == 0
+estpost summarize aqi pm temp prec snow treat if treat == 1 & year == 2020
+estpost summarize aqi pm temp prec snow treat if year == 2020 & t_asign ==.
+estpost summarize aqi pm temp prec snow treat if year == 2019 & t_asign !=.
+estpost summarize aqi pm temp prec snow treat if year == 2019 & t_asign ==.
+
+
+
+****** SI Table 4: Other Air Pollutants ******
+use wf.dta
+sort city_code daynum
+keep if daynum <=8461 & daynum >= 8401
+xtset city_code daynum
+foreach u of var co no2 o3 pm10 so2{
+	gen l_`u' = log(1+`u')
+}
+*
+
+label var treat "Lockdown"
+
+gen temp2 = temp*temp
+
+foreach u of var co no2 pm10 so2 o3{
+	reghdfe `u' treat prec snow temp temp2, absorb(city_code daynum) vce(cl city_code)
+	reghdfe l_`u' treat prec snow temp temp2, absorb(city_code daynum) vce(cl city_code)
+}
+*
+
+
+
 
