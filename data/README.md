@@ -2,7 +2,7 @@
 
 *Guojun He, Yuhang Pan, and Takanao Tanaka*
 
-*Uncompleted, coming soon...*
+**
 
 Data for Paper "The Short-term Impacts of COVID-19 Lockdown on Urban Air Pollution in China "
 

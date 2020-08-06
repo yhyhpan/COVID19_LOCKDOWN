@@ -2,8 +2,6 @@
 
 *Guojun He, Yuhang Pan, and Takanao Tanaka*
 
-*Uncompleted, coming soon...*
-
 Codes for Paper "The Short-term Impacts of COVID-19 Lockdown on Urban Air Pollution in China "
 
 **Code List:** 
