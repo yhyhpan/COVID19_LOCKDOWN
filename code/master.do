@@ -5,7 +5,7 @@
 * 	<Replication Codes>
 ***************
 clear
-cd "Your Own Location"
+cd /Users/smileternity/Dropbox/Research/github/lockdown_airpollution/git_files/COVID19_LOCKDOWN/data/
 
 ****** Table 1 (Column 1-4) ******
 use wf.dta
@@ -394,4 +394,116 @@ foreach u of var co no2 pm10 so2 o3{
 
 
 
+****** SI Table 8: Spillovers and Drop Hubei ******
+* Drop hubei cities
+drop if hubei == 1
+
+foreach u of var aqi l_aqi pm l_pm{
+	reghdfe `u'  treat prec snow temp temp2, absorb(city_code daynum) vce(cl city_code)
+}
+*
+
+
+* Drop city neighbors
+foreach u in "clean"{
+drop if city_code==	6145
+drop if city_code==	7765
+drop if city_code==	8027
+drop if city_code==	8615
+drop if city_code==	11975
+drop if city_code==	14529
+drop if city_code==	14781
+drop if city_code==	15785
+drop if city_code==	16114
+drop if city_code==	16213
+drop if city_code==	16523
+drop if city_code==	17115
+drop if city_code==	17301
+drop if city_code==	18375
+drop if city_code==	19673
+drop if city_code==	21740
+drop if city_code==	22294
+drop if city_code==	22894
+drop if city_code==	24371
+drop if city_code==	28474
+drop if city_code==	28760
+drop if city_code==	29810
+drop if city_code==	30179
+drop if city_code==	30831
+drop if city_code==	32030
+drop if city_code==	32247
+drop if city_code==	34714
+drop if city_code==	38358
+drop if city_code==	40332
+drop if city_code==	42440
+drop if city_code==	44913
+drop if city_code==	45700
+drop if city_code==	47326
+drop if city_code==	48418
+drop if city_code==	48854
+drop if city_code==	49697
+drop if city_code==	50602
+drop if city_code==	50965
+drop if city_code==	53199
+drop if city_code==	53705
+drop if city_code==	58261
+drop if city_code==	59194
+drop if city_code==	60294
+drop if city_code==	60407
+drop if city_code==	60474
+drop if city_code==	63239
+drop if city_code==	63742
+drop if city_code==	64206
+drop if city_code==	64458
+drop if city_code==	64738
+drop if city_code==	65115
+drop if city_code==	65987
+drop if city_code==	66112
+drop if city_code==	66175
+drop if city_code==	70859
+drop if city_code==	72280
+drop if city_code==	72456
+drop if city_code==	75654
+drop if city_code==	75741
+drop if city_code==	75906
+drop if city_code==	76375
+drop if city_code==	77114
+drop if city_code==	77326
+drop if city_code==	77331
+drop if city_code==	78021
+drop if city_code==	78617
+drop if city_code==	82758
+drop if city_code==	83651
+drop if city_code==	84786
+drop if city_code==	84914
+drop if city_code==	85788
+drop if city_code==	85807
+drop if city_code==	85903
+drop if city_code==	86253
+drop if city_code==	87544
+drop if city_code==	88119
+drop if city_code==	91232
+drop if city_code==	92478
+drop if city_code==	93407
+drop if city_code==	94313
+drop if city_code==	94780
+drop if city_code==	95846
+drop if city_code==	97330
+drop if city_code==	97735
+drop if city_code==	97909
+drop if city_code==	98240
+drop if city_code==	98749
+drop if city_code==	98859
+drop if city_code==	99066
+drop if city_code==	99826
+drop if city_code==	99844
+drop if city_code==	100304
+drop if city_code==	102730
+}
+
+
+foreach u of var aqi l_aqi pm l_pm{
+	reghdfe `u'  treat prec snow temp, absorb(city_code daynum) vce(cl city_code)
+}
+*
 
