@@ -395,15 +395,20 @@ foreach u of var co no2 pm10 so2 o3{
 
 
 ****** SI Table 8: Spillovers and Drop Hubei ******
-* Drop hubei cities
-drop if hubei == 1
+use wf.dta
+keep if year == 2020
 
-foreach u of var aqi l_aqi pm l_pm{
-	reghdfe `u'  treat prec snow temp temp2, absorb(city_code daynum) vce(cl city_code)
+merge m:m city_code using city_yb.dta /* City-level yearbook data */
+keep if daynum <=8461 & daynum >= 8401
+
+* outcomes
+foreach u of var aqi pm{
+	gen l_`u' = log(1+`u')
 }
 *
 
-
+* temperature squared
+gen temp2 = temp*temp
 * Drop city neighbors
 foreach u in "clean"{
 drop if city_code==	6145
@@ -506,4 +511,14 @@ foreach u of var aqi l_aqi pm l_pm{
 	reghdfe `u'  treat prec snow temp, absorb(city_code daynum) vce(cl city_code)
 }
 *
+
+* Drop hubei cities
+drop if hubei == 1
+
+foreach u of var aqi l_aqi pm l_pm{
+	reghdfe `u'  treat prec snow temp temp2, absorb(city_code daynum) vce(cl city_code)
+}
+*
+
+
 
